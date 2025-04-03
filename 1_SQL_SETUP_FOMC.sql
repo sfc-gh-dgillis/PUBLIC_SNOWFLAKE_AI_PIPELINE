@@ -21,7 +21,7 @@ CREATE OR REPLACE STAGE gen_ai_fsi.fomc.fed_pdf
     DIRECTORY = (ENABLE = TRUE);
 
 -- create a stream on the directory
-CREATE OR REPLACE STREAM GEN_AI_FSI.FOMC.FOMC_STREAM on DIRECTORY(gen_ai_fsi.fomc.fed_pdf);
+CREATE OR REPLACE STREAM gen_ai_fsi.fomc.fomc_stream on DIRECTORY(@gen_ai_fsi.fomc.fed_pdf);
 
 -- Create sequences
 CREATE OR REPLACE SEQUENCE gen_ai_fsi.fomc.fed_pdf_full_text_sequence;
