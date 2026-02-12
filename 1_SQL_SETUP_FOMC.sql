@@ -1,4 +1,5 @@
 --authors: John Heisler & Garrett Frere
+--updated: Modernized for latest Snowflake AI functions
 
 USE ROLE SYSADMIN;
 
@@ -27,29 +28,26 @@ CREATE OR REPLACE STREAM gen_ai_fsi.fomc.fomc_stream on DIRECTORY(@gen_ai_fsi.fo
 CREATE OR REPLACE SEQUENCE gen_ai_fsi.fomc.fed_pdf_full_text_sequence;
 CREATE OR REPLACE SEQUENCE gen_ai_fsi.fomc.fed_pdf_chunk_sequence;
 
---store model data for meta analysis
+--store model data for meta analysis (updated with current models)
 CREATE OR REPLACE TABLE gen_ai_fsi.fomc.models (
     model          VARCHAR,
     context_window INT
 );
 
---insert values into models table
+--insert values into models table (updated model list)
 INSERT INTO gen_ai_fsi.fomc.models (model, context_window)
-VALUES ('mistral-large', 32000),
-       ('reka-flash', 100000),
-       ('reka-core', 32000),
-       ('jamba-instruct', 256000),
-       ('mixtral-8x7b', 32000),
-       ('llama2-70b-chat', 4096),
-       ('llama3-8b', 8000),
-       ('llama3-70b', 8000),
+VALUES ('mistral-large2', 128000),
+       ('claude-3-5-sonnet', 200000),
        ('llama3.1-8b', 128000),
        ('llama3.1-70b', 128000),
        ('llama3.1-405b', 128000),
-       ('mistral-7b', 32000),
-       ('gemma-7b', 8000);
+       ('llama3.2-3b', 128000),
+       ('llama3.3-70b', 128000),
+       ('snowflake-arctic', 4096),
+       ('mixtral-8x7b', 32000),
+       ('mistral-7b', 32000);
 
---create our full text table
+--create our full text table (added signal and signal_summary as VARIANT for structured output)
 CREATE OR REPLACE TABLE gen_ai_fsi.fomc.pdf_full_text (
     id            NUMBER(19, 0),
     relative_path VARCHAR(16777216),
@@ -60,8 +58,11 @@ CREATE OR REPLACE TABLE gen_ai_fsi.fomc.pdf_full_text (
     file_url      VARCHAR(16777216),
     file_text     VARCHAR(16777216),
     file_date     DATE,
-    sentiment     VARCHAR(16777216)
+    sentiment     VARIANT
 );
+
+--enable change tracking for Cortex Search incremental refresh
+ALTER TABLE gen_ai_fsi.fomc.pdf_full_text SET DATA_RETENTION_TIME_IN_DAYS = 1;
 
 CREATE OR REPLACE TABLE gen_ai_fsi.fomc.pdf_chunks (
     id            NUMBER(19, 0),
@@ -70,6 +71,9 @@ CREATE OR REPLACE TABLE gen_ai_fsi.fomc.pdf_chunks (
     file_date     DATE,
     chunk         VARCHAR(16777216)
 );
+
+--enable change tracking for Cortex Search incremental refresh
+ALTER TABLE gen_ai_fsi.fomc.pdf_chunks SET DATA_RETENTION_TIME_IN_DAYS = 1;
 
 -- In order to go to the public internet and download the PDFs,
 -- we need a network rule and external access integration.
