@@ -7,14 +7,6 @@ The intent of these assets is both instructional and functional. In `FSI_Cortex_
 
 In `FSI_Cortex_AI_Pipeline_Industrialization.ipynb`, we take the functional elements built in `FSI_Cortex_AI_Pipeline.ipynb` and industrialize them toward an enterprise-ready AI pipeline.
 
-## Presentation / Recording
-
-Presentation URL: https://docs.google.com/presentation/d/1NASynbIFFX4SfvkdwQIi3Y9l5v4o1iUA1n1EIn0DGmI/edit#slide=id.p
-
-Recordings URL: https://snowflake.zoom.us/rec/share/decjfFGdLiWOPxny8iJG9d6mEWme_MgNLYTrCgvz_tQViYKs1gQsQ03n6BaVG-ZP.gMehFA0WUSZr899m
-
-> Recordings PWD: `4N=a1!Kj`
-
 ## Suggested Learning Path
 
 1. Run Set Up SQL Script `1_SQL_SETUP_FOMCl.sql`
