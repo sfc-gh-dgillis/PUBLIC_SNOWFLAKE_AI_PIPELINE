@@ -26,21 +26,18 @@ CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.models (
     context_window INT
 );
 
---insert values into models table
+--insert values into models table (updated model list)
 INSERT INTO gen_ai_fsi.asset_management.models (model, context_window)
-VALUES ('mistral-large', 32000),
-       ('reka-flash', 100000),
-       ('reka-core', 32000),
-       ('jamba-instruct', 256000),
-       ('mixtral-8x7b', 32000),
-       ('llama2-70b-chat', 4096),
-       ('llama3-8b', 8000),
-       ('llama3-70b', 8000),
+VALUES ('mistral-large2', 128000),
+       ('claude-3-5-sonnet', 200000),
        ('llama3.1-8b', 128000),
        ('llama3.1-70b', 128000),
        ('llama3.1-405b', 128000),
-       ('mistral-7b', 32000),
-       ('gemma-7b', 8000);
+       ('llama3.2-3b', 128000),
+       ('llama3.3-70b', 128000),
+       ('snowflake-arctic', 4096),
+       ('mixtral-8x7b', 32000),
+       ('mistral-7b', 32000);
 
 --create our full text table
 CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.pdf_full_text (
@@ -56,6 +53,9 @@ CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.pdf_full_text (
     sentiment     VARIANT
 );
 
+--enable change tracking for Cortex Search incremental refresh
+ALTER TABLE gen_ai_fsi.asset_management.pdf_full_text SET DATA_RETENTION_TIME_IN_DAYS = 1;
+
 CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.pdf_chunks (
     id            NUMBER(19, 0),
     full_text_fk  NUMBER(19, 0),
@@ -63,6 +63,9 @@ CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.pdf_chunks (
     file_date     DATE,
     chunk         VARCHAR(16777216)
 );
+
+--enable change tracking for Cortex Search incremental refresh
+ALTER TABLE gen_ai_fsi.asset_management.pdf_chunks SET DATA_RETENTION_TIME_IN_DAYS = 1;
 
 -- In order to go to the public internet and download the PDFs,
 -- we need a network rule and external access integration.
