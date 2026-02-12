@@ -17,9 +17,10 @@ CREATE OR REPLACE SCHEMA gen_ai_fsi.fomc;
 CREATE OR REPLACE STAGE gen_ai_fsi.fomc.fed_logic
     DIRECTORY = (ENABLE = TRUE);
 
---create stage fed_pdf;
+--create stage fed_pdf (server-side encryption required for AI_PARSE_DOCUMENT)
 CREATE OR REPLACE STAGE gen_ai_fsi.fomc.fed_pdf
-    DIRECTORY = (ENABLE = TRUE);
+    DIRECTORY = (ENABLE = TRUE)
+    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
 
 -- create a stream on the directory
 CREATE OR REPLACE STREAM gen_ai_fsi.fomc.fomc_stream on DIRECTORY(@gen_ai_fsi.fomc.fed_pdf);
