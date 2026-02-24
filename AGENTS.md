@@ -2,14 +2,18 @@
 
 ## Project Overview
 
-This repository contains 
+This repository demonstrates how to build AI-infused data pipelines using Snowflake Cortex for Financial Services. The demo focuses on analyzing Federal Open Market Committee (FOMC) meeting minutes to automatically generate hawkish/dovish/neutral economic sentiment signals using Cortex Complete, and provides a RAG-powered chat interface using Cortex Search for deeper document comprehension.
+
 ## Key Files
 
-| File       | Purpose         |
-|------------|-----------------|
-| `file1.md` | Some purpose    |
-| `file2.md` | Another purpose |
-| `file3.md`     | higher purpose  |
+| File | Purpose |
+|------|---------|
+| `1_AI_Pipeline_Setup.SQL` | SQL setup script to create database objects, stages, streams, sequences, tables, network rules, and stored procedures |
+| `2_AI_Pipeline.ipynb` | Core AI pipeline notebook demonstrating PDF ingestion, text extraction with AI_PARSE_DOCUMENT, prompt engineering, and sentiment analysis with Cortex Complete |
+| `3_AI_Cortex_Search.ipynb` | RAG demo using Cortex Search for document chunking, embedding, and a Streamlit chat interface |
+| `4_AI_Pipeline_Industrialization.ipynb` | Enterprise-ready pipeline automation using streams and tasks for continuous ingestion and scoring |
+| `FOMC_DOCS/` | Sample FOMC meeting minutes PDFs for testing |
+| `README.md` | Project overview and suggested learning path |
 
 ## Snowflake Research Instructions
 
