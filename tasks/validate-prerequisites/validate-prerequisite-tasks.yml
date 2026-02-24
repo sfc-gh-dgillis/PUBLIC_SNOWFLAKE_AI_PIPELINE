@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+
+  snowcli:
+    desc: Validates that Snowflake CLI is installed.
+    cmds:
+      - chmod +x ./tasks/validate-prerequisites/cmd/validate-snowcli.sh
+      - ./tasks/validate-prerequisites/cmd/validate-snowcli.sh

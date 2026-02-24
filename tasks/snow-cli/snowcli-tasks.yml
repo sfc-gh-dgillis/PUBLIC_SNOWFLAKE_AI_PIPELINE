@@ -1,0 +1,23 @@
+version: '3'
+
+tasks:
+
+  sort-and-process-sql-folder:
+    desc: Sorts and processes all SQL files in the given directory. Sorts and executes SQL files with numeric prefixes (e.g., 001-schema.sql)
+    cmds:
+      - python3 pyutil/snowclisp/snowclisp.py "{{.SQL_SORT_PROCESS_DIR}}" "{{.CLI_CONNECTION_NAME}}" --prefix-file sql/whoami.sql
+
+  upload-files-to-internal-named-stage:
+    desc: Uploads all files from the given directory to a Snowflake Internal stage using the Snowflake CLI and PUT command.
+    cmds:
+      - python3 pyutil/snowcliput/snowcliput.py "{{.FILE_UPLOAD_DIR}}" "{{.CLI_CONNECTION_NAME}}" "{{.INTERNAL_NAMED_STAGE}}"
+
+  deploy-streamlit-app:
+    desc: Deploys a Streamlit app to Snowflake using the Snowflake CLI.
+    cmds:
+      - snow streamlit deploy --replace --prune --open --project "{{.STREAMLIT_APP_DIR}}"
+
+  drop-database-if-exists:
+    desc: Drops the specified Snowflake database if it exists using the Snowflake CLI.
+    cmds:
+      - snow sql --connection "{{.CLI_CONNECTION_NAME}}" --query "DROP DATABASE IF EXISTS {{.DEMO_DATABASE_NAME}};"

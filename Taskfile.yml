@@ -1,0 +1,59 @@
+version: '3'
+
+includes:
+  validate-prerequisites: ./tasks/validate-prerequisites/validate-prerequisite-tasks.yml
+  snow-cli:
+    taskfile: ./tasks/snow-cli/snowcli-tasks.yml
+    dir: ./tasks/snow-cli
+
+env:
+  ENV_DIR: .env
+
+dotenv: ['{{ .ENV_DIR }}/{{ .DOTENV_FILENAME | default "demo.env" }}']
+
+tasks:
+
+  demo-up:
+    desc: |
+      Usage: `task demo-up` if using the default demo.env file. Use `DOTENV_FILENAME=custom.env task demo-up`
+      if using a custom .env file (filename does not have to be custom.env, but must end with .env).
+
+    cmds:
+      - task: validate-prerequisites:snowcli
+        silent: true
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-0
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-1
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:upload-files-to-internal-named-stage
+        vars:
+          FILE_UPLOAD_DIR: $FILE_UPLOAD_DIR
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+          INTERNAL_NAMED_STAGE: $INTERNAL_NAMED_STAGE
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-2
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+#      - task: snow-cli:deploy-streamlit-app
+#        vars:
+#          STREAMLIT_APP_DIR: $STREAMLIT_APP_DIR
+#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+  demo-down:
+    desc: |
+      Usage: `task demo-down` will teardown the demo. In this case, dropping the database which is created as part of the demo.
+
+    cmds:
+      - task: snow-cli:drop-database-if-exists
+        vars:
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+          DATABASE_NAME: $DATABASE_NAME

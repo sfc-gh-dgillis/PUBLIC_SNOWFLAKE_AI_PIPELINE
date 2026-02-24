@@ -1,86 +1,6 @@
-CREATE DATABASE IF NOT EXISTS GEN_AI_FSI;
-
-CREATE SCHEMA IF NOT EXISTS GEN_AI_FSI.asset_management;
-
-USE SCHEMA GEN_AI_FSI.asset_management;
-
---create stage fed_logic;
-CREATE STAGE IF NOT EXISTS gen_ai_fsi.asset_management.fed_logic
-    DIRECTORY = (ENABLE = TRUE);
-
---create stage fed_pdf;
-CREATE STAGE gen_ai_fsi.asset_management.FED_PDF 
-    DIRECTORY = ( ENABLE = true ) 
-    ENCRYPTION = ( TYPE = 'SNOWFLAKE_SSE' );
-
--- create a stream on the directory
-CREATE STREAM IF NOT EXISTS gen_ai_fsi.asset_management.asset_management_stream on DIRECTORY(@gen_ai_fsi.asset_management.fed_pdf);
-
--- Create sequences
-CREATE SEQUENCE IF NOT EXISTS gen_ai_fsi.asset_management.fed_pdf_full_text_sequence;
-CREATE SEQUENCE IF NOT EXISTS gen_ai_fsi.asset_management.fed_pdf_chunk_sequence;
-
---store model data for meta analysis
-CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.models (
-    model          VARCHAR,
-    context_window INT
-);
-
---insert values into models table (updated model list)
-INSERT INTO gen_ai_fsi.asset_management.models (model, context_window)
-VALUES ('mistral-large2', 128000),
-       ('claude-3-5-sonnet', 200000),
-       ('llama3.1-8b', 128000),
-       ('llama3.1-70b', 128000),
-       ('llama3.1-405b', 128000),
-       ('llama3.2-3b', 128000),
-       ('llama3.3-70b', 128000),
-       ('snowflake-arctic', 4096),
-       ('mixtral-8x7b', 32000),
-       ('mistral-7b', 32000);
-
---create our full text table
-CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.pdf_full_text (
-    id            NUMBER(19, 0),
-    relative_path VARCHAR(16777216),
-    size          NUMBER(38, 0),
-    last_modified TIMESTAMP_TZ(3),
-    md5           VARCHAR(16777216),
-    etag          VARCHAR(16777216),
-    file_url      VARCHAR(16777216),
-    file_text     VARCHAR(16777216),
-    file_date     DATE,
-    sentiment     VARIANT
-);
-
---enable change tracking for Cortex Search incremental refresh
-ALTER TABLE gen_ai_fsi.asset_management.pdf_full_text SET DATA_RETENTION_TIME_IN_DAYS = 1;
-
-CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.pdf_chunks (
-    id            NUMBER(19, 0),
-    full_text_fk  NUMBER(19, 0),
-    relative_path VARCHAR(16777216),
-    file_date     DATE,
-    chunk         VARCHAR(16777216)
-);
-
---enable change tracking for Cortex Search incremental refresh
-ALTER TABLE gen_ai_fsi.asset_management.pdf_chunks SET DATA_RETENTION_TIME_IN_DAYS = 1;
-
--- In order to go to the public internet and download the PDFs,
--- we need a network rule and external access integration.
-
--- create the network rule
-CREATE OR REPLACE NETWORK RULE gen_ai_fsi.asset_management.fed_reserve
-  MODE = EGRESS
-  TYPE = HOST_PORT
-  VALUE_LIST = ('www.federalreserve.gov');
-
--- add the network rule to external access integration
+USE DATABASE gen_ai_fsi;
+USE SCHEMA gen_ai_fsi.asset_management;
 USE ROLE ACCOUNTADMIN;
-CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION fed_reserve_access_integration
-  ALLOWED_NETWORK_RULES = (FED_RESERVE)
-  ENABLED = TRUE;
 
 -- create the scraping SPROC
 CREATE OR REPLACE PROCEDURE gen_ai_fsi.asset_management.get_fed_pdfs()
@@ -94,7 +14,7 @@ EXECUTE AS CALLER
 AS $$
 
 import snowflake.snowpark as snowpark
-import requests 
+import requests
 from bs4 import BeautifulSoup
 from io import BytesIO
 
@@ -130,19 +50,19 @@ def main(session):
 
     # Get all PDF links from the website
     pdfs = get_all_fomc_pdfs()
-    
+
     # Get all files already in your stage
     query = f'LIST @{database}.{schema}.{stage}'
     stage_files = session.sql(query).collect()
     stage_files = [row['name'] for row in stage_files]
-    
+
     # Set the stage path
     stage_path = f'@{database}.{schema}.{stage}/'
-    
+
     # Download new files and categorize existing ones
     for pdf in pdfs:
         filename = pdf.split('/')[-1]
-        
+
         # Check if the file is an FOMC minutes PDF and not already downloaded
         if 'fomcminutes' in filename and ('fed_pdf/' + filename not in stage_files):
             try:
@@ -160,7 +80,7 @@ def main(session):
         else:
             already_downloaded_files.append(filename)
             print(f"{filename}:\t already downloaded")
-            
+
     # Format the output as a single string
     output_string = "## Downloaded Files\n"
     if downloaded_files:
@@ -173,6 +93,6 @@ def main(session):
         output_string += ", ".join(already_downloaded_files)
     else:
         output_string += "No FOMC minutes PDFs were found that were already downloaded or did not match the 'fomcminutes' criteria."
-        
+
     return output_string
 $$;
