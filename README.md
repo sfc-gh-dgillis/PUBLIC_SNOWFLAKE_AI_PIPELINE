@@ -34,13 +34,13 @@ Portfolio teams at asset managers need to quickly comprehend FOMC statements to 
 
 ### For Automated Setup (Task Runner)
 
-2. **Snowflake CLI** installed and configured
-3. **Task** (Go Task Runner) installed
-4. **Python 3.x** installed (for utility scripts)
+1. **Snowflake CLI** installed and configured
+2. **Task** (Go Task Runner) installed
+3. **Python 3.x** installed (for utility scripts)
 
 ### For Manual Setup
 
-2. Access to Snowsight UI
+1. Access to Snowsight UI
 
 ### Validate Prerequisites (Automated Setup Only)
 
@@ -144,7 +144,7 @@ The deployment creates the following Snowflake objects:
 #### Tables
 
 | Table | Purpose |
-|-------|---------|
+| ------- | --------- |
 | `PDF_FULL_TEXT` | Stores extracted PDF text with FILE type, sentiment analysis results |
 | `PDF_CHUNKS` | Chunked text for RAG/Cortex Search |
 | `PDF_FULL_TEXT_MARKDOWN_AWARE` | Markdown-aware text extraction for improved chunking |
@@ -154,21 +154,21 @@ The deployment creates the following Snowflake objects:
 #### Stages
 
 | Stage | Purpose |
-|-------|---------|
+| ------- | --------- |
 | `FED_PDF` | Internal stage for FOMC PDF documents with directory enabled |
 | `FED_LOGIC` | Internal stage for UDF dependencies |
 
 #### Streams
 
 | Stream | Purpose |
-|--------|---------|
+| -------- | --------- |
 | `ASSET_MANAGEMENT_STREAM` | CDC stream on `FED_PDF` stage directory for new file detection |
 | `FOMC_STREAM` | CDC stream for pipeline automation |
 
 #### Functions & Procedures
 
 | Object | Type | Purpose |
-|--------|------|---------|
+| -------- | ------ | --------- |
 | `GET_FED_PDFS` | Stored Procedure | Downloads FOMC PDFs from Federal Reserve website to stage |
 | `GENERATE_SENTIMENT_PROMPT` | UDF | Generates expert economist prompt for sentiment analysis |
 | `GENERATE_PROMPT` | SQL Function | Simplified prompt generator for AI_COMPLETE |
@@ -176,20 +176,20 @@ The deployment creates the following Snowflake objects:
 #### Tasks (Created in Industrialization Notebook)
 
 | Task | Purpose |
-|------|---------|
+| ------ | --------- |
 | `DOWNLOAD_FED_PDF_TO_STAGE` | Scheduled task to download new FOMC PDFs hourly |
 | `LOAD_FED_PDFS_STAGE_TO_TABLE` | Triggered task to process new PDFs and generate sentiment |
 
 #### Cortex Services (Created in Search Notebook)
 
 | Service | Purpose |
-|---------|---------|
+| --------- | --------- |
 | `SEARCH_FED_MARKDOWN_AWARE` | Cortex Search service for RAG-powered document Q&A |
 
 #### External Access
 
 | Object | Purpose |
-|--------|---------|
+| -------- | --------- |
 | `FED_RESERVE` | Network rule allowing egress to `www.federalreserve.gov` |
 | `FED_RESERVE_ACCESS_INTEGRATION` | External access integration for PDF download |
 
@@ -219,16 +219,19 @@ The deployment creates the following Snowflake objects:
 Once the Cortex Search service is deployed, you can ask questions like:
 
 **Economic Outlook:**
+
 - "What is the Fed's current view on inflation?"
 - "Are there concerns about employment levels?"
 - "What factors are driving policy decisions?"
 
 **Policy Signals:**
+
 - "Is the committee leaning toward rate increases or cuts?"
 - "What language suggests hawkish sentiment?"
 - "Are there any dissenting opinions?"
 
 **Specific Topics:**
+
 - "What did the committee say about housing markets?"
 - "How is the labor market being characterized?"
 - "What international factors were discussed?"
@@ -238,7 +241,7 @@ Once the Cortex Search service is deployed, you can ask questions like:
 The demo includes sample FOMC PDFs in the `FOMC_DOCS/` directory:
 
 | File | Description |
-|------|-------------|
+| ------ | ------------- |
 | `fomcminutes20240501.pdf` | May 2024 FOMC Meeting Minutes |
 | `fomcminutes20240612.pdf` | June 2024 FOMC Meeting Minutes |
 | `fomcminutes20240731.pdf` | July 2024 FOMC Meeting Minutes |
@@ -285,7 +288,7 @@ This will drop the database specified in `DATABASE_NAME` and all its contents.
 
 ### Data Flow
 
-```
+```text
 Federal Reserve Website
         │
         ▼ (GET_FED_PDFS stored procedure)
@@ -310,7 +313,7 @@ Federal Reserve Website
 ### Key Technologies
 
 | Technology | Purpose |
-|------------|---------|
+| ------------ | --------- |
 | **AI_PARSE_DOCUMENT** | Native PDF text extraction with layout preservation |
 | **AI_COMPLETE** | LLM inference with structured JSON output |
 | **Cortex Search** | Vector search for RAG with automatic embedding |
@@ -376,7 +379,7 @@ Run the SQL files in `tasks/snow-cli/sql/batch-1/` in numeric order. These requi
 ### Common Issues
 
 | Issue | Solution |
-|-------|----------|
+| ------- | ---------- |
 | External access integration not available | Ensure ACCOUNTADMIN role is used; check that the integration is enabled in notebook settings |
 | PDF download fails | Verify network rule allows `www.federalreserve.gov`; check external access integration is enabled |
 | Stream has no data | Run `ALTER STAGE FED_PDF REFRESH;` to update the directory table |
