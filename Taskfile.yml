@@ -19,34 +19,38 @@ tasks:
       if using a custom .env file (filename does not have to be custom.env, but must end with .env).
 
     cmds:
-      - task: validate-prerequisites:snowcli
-        silent: true
-
-      - task: snow-cli:sort-and-process-sql-folder
-        vars:
-          SQL_SORT_PROCESS_DIR: sql/batch-0
-          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-
-      - task: snow-cli:sort-and-process-sql-folder
-        vars:
-          SQL_SORT_PROCESS_DIR: sql/batch-1
-          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-
-      - task: snow-cli:upload-files-to-internal-named-stage
-        vars:
-          FILE_UPLOAD_DIR: $FILE_UPLOAD_DIR
-          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-          INTERNAL_NAMED_STAGE: $INTERNAL_NAMED_STAGE
-
-      - task: snow-cli:sort-and-process-sql-folder
-        vars:
-          SQL_SORT_PROCESS_DIR: sql/batch-2
-          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-
-#      - task: snow-cli:deploy-streamlit-app
+#      - task: validate-prerequisites:snowcli
+#        silent: true
+#
+#      - task: snow-cli:sort-and-process-sql-folder
 #        vars:
-#          STREAMLIT_APP_DIR: $STREAMLIT_APP_DIR
+#          SQL_SORT_PROCESS_DIR: sql/batch-0
 #          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+#
+#      - task: snow-cli:sort-and-process-sql-folder
+#        vars:
+#          SQL_SORT_PROCESS_DIR: sql/batch-1
+#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+#
+#      - task: snow-cli:upload-files-to-internal-named-stage
+#        vars:
+#          FILE_UPLOAD_DIR: $FILE_UPLOAD_DIR
+#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+#          INTERNAL_NAMED_STAGE: $INTERNAL_NAMED_STAGE
+
+#      - task: snow-cli:sort-and-process-sql-folder
+#        vars:
+#          SQL_SORT_PROCESS_DIR: sql/batch-2
+#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:generate-notebook
+        vars:
+          TEMPLATE_FILE: notebook/template/2_AI_Pipeline/2_AI_Pipeline_template.ipynb
+          OUTPUT_FILE: notebook/output/2_AI_Pipeline/2_AI_Pipeline.ipynb
+      - task: snow-cli:deploy-notebook
+        vars:
+          PROJECT_DIR: notebook/output/2_AI_Pipeline
+
 
   demo-down:
     desc: |
