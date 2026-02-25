@@ -8,7 +8,7 @@ This repository demonstrates how to build AI-infused data pipelines using Snowfl
 
 | File | Purpose |
 |------|---------|
-| `1_AI_Pipeline_Setup.SQL` | SQL setup script to create database objects, stages, streams, sequences, tables, network rules, and stored procedures |
+| `001-AI_Pipeline_Setup.SQL` | SQL setup script to create database objects, stages, streams, sequences, tables, network rules, and stored procedures |
 | `2_AI_Pipeline.ipynb` | Core AI pipeline notebook demonstrating PDF ingestion, text extraction with AI_PARSE_DOCUMENT, prompt engineering, and sentiment analysis with Cortex Complete |
 | `3_AI_Cortex_Search.ipynb` | RAG demo using Cortex Search for document chunking, embedding, and a Streamlit chat interface |
 | `4_AI_Pipeline_Industrialization.ipynb` | Enterprise-ready pipeline automation using streams and tasks for continuous ingestion and scoring |
