@@ -31,3 +31,6 @@ tasks.json
 
 # Generated notebook output
 tasks/snow-cli/notebook/output/
+
+# Environment files (keep templates, ignore actual .env files)
+.env/*.env
