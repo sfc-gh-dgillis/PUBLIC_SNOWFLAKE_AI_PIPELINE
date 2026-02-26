@@ -1,6 +1,4 @@
-# FOMC Sentiment Analysis Demo - Setup Guide
-
-This guide provides instructions to deploy the FOMC Sentiment Analysis demo using [Task](https://taskfile.dev), the modern Task runner. For manual deployment, see [Manual Setup](#manual-setup).
+# FOMC Sentiment Analysis Demo
 
 ## Overview
 
@@ -26,33 +24,32 @@ Portfolio teams at asset managers need to quickly comprehend FOMC statements to 
 - [John Heisler](https://www.linkedin.com/in/jheisler/)
 - [Garrett Frere](https://www.linkedin.com/in/garrett-frere/)
 
-## Prerequisites
+## Choose Your Deployment Path
 
-### Required
+This demo can be deployed in two ways:
 
-1. **Snowflake Account** with ACCOUNTADMIN role (or SYSADMIN + ACCOUNTADMIN for external access integration)
+| Path | Best For | Prerequisites |
+|------|----------|---------------|
+| [**Automated Setup**](#setup-automated) | Repeatable deployments, CI/CD integration | Snowflake CLI, [Task](https://taskfile.dev), Python 3.x |
+| [**Manual Setup**](#manual-setup) | Quick start, learning, one-time deployment | Snowsight UI only |
 
-### For Automated Setup (Task Runner)
+Both paths require a **Snowflake Account** with ACCOUNTADMIN role (or SYSADMIN + ACCOUNTADMIN for external access integration).
+
+---
+
+## Setup (Automated)
+
+### Prerequisites
 
 1. **Snowflake CLI** installed and configured
-2. **Task** (Go Task Runner) installed
+2. **[Task](https://taskfile.dev)** (Go Task Runner) installed
 3. **Python 3.x** installed (for utility scripts)
 
-### For Manual Setup
-
-1. Access to Snowsight UI
-
-### Validate Prerequisites (Automated Setup Only)
-
-You can validate that Snowflake CLI is installed correctly:
+Validate that Snowflake CLI is installed correctly:
 
 ```bash
 task validate-prerequisites:snowcli
 ```
-
-## Setup (Automated)
-
-The following steps use the automated Task runner and require the **ACCOUNTADMIN** role (or SYSADMIN with CREATE DATABASE privileges, plus ACCOUNTADMIN for external access integration). For manual setup, see [Manual Setup](#manual-setup).
 
 ### Step 1: Configure Environment
 
@@ -100,7 +97,7 @@ This creates:
 
 - Tables (`PDF_FULL_TEXT`, `PDF_CHUNKS`, `MODELS`)
 - Sequences for ID generation
-- Internal stages (`FED_PDF`, `FED_LOGIC`)
+- Internal stages (`fomc_sentiment_analysis_demo`, `FED_LOGIC`)
 - Streams for CDC on the stage directory
 - Network rules for Federal Reserve website access
 - External access integration (`FED_RESERVE_ACCESS_INTEGRATION`)
@@ -119,18 +116,41 @@ Or manually upload files from the `FOMC_DOCS/` directory via Snowsight.
 
 ## Demo Deployment
 
-### Deploy the Notebooks
+### Individual Notebooks
 
-The primary demo experience is through Snowflake Notebooks. Deploy them using:
+Deploy each notebook independently based on what you want to demonstrate:
+
+| Task | Notebook | Description |
+|------|----------|-------------|
+| `task demo1` | 2_AI_Pipeline | Core sentiment analysis with Cortex Complete |
+| `task demo2` | 3_AI_Cortex_Search | RAG-powered document Q&A with PDF parsing |
+| `task demo3` | 4_AI_Pipeline_Industrialization | Automated pipeline with Streams & Tasks |
+
+```bash
+# Deploy just the sentiment analysis pipeline
+task demo1
+
+# Deploy just the Cortex Search RAG demo
+task demo2
+
+# Deploy just the industrialization demo
+task demo3
+```
+
+### Deploy All Notebooks
+
+To deploy all three notebooks at once:
 
 ```bash
 task demo-up
 ```
 
-This command:
+Each task:
 
-1. Generates notebooks from templates (substituting environment variables)
-2. Deploys notebooks to Snowflake
+1. Runs the prerequisite SQL batches (infrastructure, schema objects)
+2. Uploads sample files to the stage (for demo1 and demo3)
+3. Generates the notebook from template (substituting environment variables)
+4. Deploys the notebook to Snowflake
 
 ### What Gets Created
 
@@ -155,14 +175,14 @@ The deployment creates the following Snowflake objects:
 
 | Stage | Purpose |
 | ------- | --------- |
-| `FED_PDF` | Internal stage for FOMC PDF documents with directory enabled |
+| `fomc_sentiment_analysis_demo` | Internal stage for FOMC PDF documents with directory enabled |
 | `FED_LOGIC` | Internal stage for UDF dependencies |
 
 #### Streams
 
 | Stream | Purpose |
 | -------- | --------- |
-| `ASSET_MANAGEMENT_STREAM` | CDC stream on `FED_PDF` stage directory for new file detection |
+| `ASSET_MANAGEMENT_STREAM` | CDC stream on `fomc_sentiment_analysis_demo` stage directory for new file detection |
 | `FOMC_STREAM` | CDC stream for pipeline automation |
 
 #### Functions & Procedures
@@ -292,7 +312,7 @@ This will drop the database specified in `DATABASE_NAME` and all its contents.
 Federal Reserve Website
         │
         ▼ (GET_FED_PDFS stored procedure)
-    FED_PDF Stage
+    fomc_sentiment_analysis_demo Stage
         │
         ▼ (FOMC_STREAM CDC)
    AI_PARSE_DOCUMENT
@@ -322,9 +342,11 @@ Federal Reserve Website
 | **Tasks** | Scheduled and triggered pipeline automation |
 | **External Access** | Secure egress to Federal Reserve website |
 
+---
+
 ## Manual Setup
 
-If you prefer not to use the Task runner, follow these steps using Snowsight:
+Follow these steps using Snowsight:
 
 ### Step 1: Create Infrastructure
 
@@ -357,7 +379,7 @@ Run the SQL files in `tasks/snow-cli/sql/batch-1/` in numeric order. These requi
 
 ### Step 3: Upload FOMC Documents
 
-1. Navigate to Snowsight → Data → Databases → GEN_AI_FSI → ASSET_MANAGEMENT → Stages → FED_PDF
+1. Navigate to Snowsight → Data → Databases → GEN_AI_FSI → ASSET_MANAGEMENT → Stages → fomc_sentiment_analysis_demo
 2. Upload PDF files from the `FOMC_DOCS/` directory
 
 ### Step 4: Run Notebooks
@@ -382,7 +404,7 @@ Run the SQL files in `tasks/snow-cli/sql/batch-1/` in numeric order. These requi
 | ------- | ---------- |
 | External access integration not available | Ensure ACCOUNTADMIN role is used; check that the integration is enabled in notebook settings |
 | PDF download fails | Verify network rule allows `www.federalreserve.gov`; check external access integration is enabled |
-| Stream has no data | Run `ALTER STAGE FED_PDF REFRESH;` to update the directory table |
+| Stream has no data | Run `ALTER STAGE fomc_sentiment_analysis_demo REFRESH;` to update the directory table |
 | Cortex Search not returning results | Verify the search service was created successfully; check that chunks table has data |
 | Task not running | Verify `SYSTEM$STREAM_HAS_DATA` returns TRUE; check task is resumed |
 
@@ -390,7 +412,7 @@ Run the SQL files in `tasks/snow-cli/sql/batch-1/` in numeric order. These requi
 
 ```sql
 -- Check stage contents
-SELECT * FROM DIRECTORY(@GEN_AI_FSI.ASSET_MANAGEMENT.FED_PDF);
+SELECT * FROM DIRECTORY(@gen_ai_fsi.asset_management.fomc_sentiment_analysis_demo);
 
 -- Check stream for new files
 SELECT * FROM FOMC_STREAM WHERE METADATA$ACTION = 'INSERT';

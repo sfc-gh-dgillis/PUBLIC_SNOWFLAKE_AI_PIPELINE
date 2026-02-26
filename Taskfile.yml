@@ -13,10 +13,69 @@ dotenv: ['{{ .ENV_DIR }}/{{ .DOTENV_FILENAME | default "demo.env" }}']
 
 tasks:
 
-  demo-up:
+  demo1:
     desc: |
-      Usage: `task demo-up` if using the default demo.env file. Use `DOTENV_FILENAME=custom.env task demo-up`
-      if using a custom .env file (filename does not have to be custom.env, but must end with .env).
+      Deploys Notebook 2 (AI Pipeline) - Sentiment analysis with Cortex Complete.
+      Usage: `task demo1` or `DOTENV_FILENAME=custom.env task demo1`
+
+    cmds:
+      - task: validate-prerequisites:snowcli
+        silent: true
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-0
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-1
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-2
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:generate-notebook
+        vars:
+          TEMPLATE_FILE: notebook/template/2_AI_Pipeline/2_AI_Pipeline_template.ipynb
+          OUTPUT_FILE: notebook/output/2_AI_Pipeline/2_AI_Pipeline.ipynb
+      - task: snow-cli:deploy-notebook
+        vars:
+          PROJECT_DIR: notebook/output/2_AI_Pipeline
+
+  demo2:
+    desc: |
+      Deploys Notebook 3 (Cortex Search) - RAG-powered document Q&A with PDF parsing.
+      Usage: `task demo2` or `DOTENV_FILENAME=custom.env task demo2`
+
+    cmds:
+      - task: validate-prerequisites:snowcli
+        silent: true
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-0
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-1
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:generate-notebook
+        vars:
+          TEMPLATE_FILE: notebook/template/3_AI_Cortex_Search/3_AI_Cortex_Search_template.ipynb
+          OUTPUT_FILE: notebook/output/3_AI_Cortex_Search/3_AI_Cortex_Search.ipynb
+      - task: snow-cli:deploy-notebook
+        vars:
+          PROJECT_DIR: notebook/output/3_AI_Cortex_Search
+
+  demo3:
+    desc: |
+      Deploys Notebook 4 (AI Pipeline Industrialization) - Automated pipeline with Streams & Tasks.
+      Usage: `task demo3` or `DOTENV_FILENAME=custom.env task demo3`
 
     cmds:
       - task: validate-prerequisites:snowcli
@@ -45,11 +104,21 @@ tasks:
 
       - task: snow-cli:generate-notebook
         vars:
-          TEMPLATE_FILE: notebook/template/2_AI_Pipeline/2_AI_Pipeline_template.ipynb
-          OUTPUT_FILE: notebook/output/2_AI_Pipeline/2_AI_Pipeline.ipynb
+          TEMPLATE_FILE: notebook/template/4_AI_Pipeline_Industrialization/4_AI_Pipeline_Industrialization_template.ipynb
+          OUTPUT_FILE: notebook/output/4_AI_Pipeline_Industrialization/4_AI_Pipeline_Industrialization.ipynb
       - task: snow-cli:deploy-notebook
         vars:
-          PROJECT_DIR: notebook/output/2_AI_Pipeline
+          PROJECT_DIR: notebook/output/4_AI_Pipeline_Industrialization
+
+  demo-up:
+    desc: |
+      Deploys all demos (demo1, demo2, demo3) sequentially.
+      Usage: `task demo-up` or `DOTENV_FILENAME=custom.env task demo-up`
+
+    cmds:
+      - task: demo1
+      - task: demo2
+      - task: demo3
 
   demo-down:
     desc: |

@@ -206,6 +206,8 @@ def main():
         "demo_schema_name": get_required_env("DEMO_SCHEMA_NAME"),
         "internal_named_stage": get_required_env("INTERNAL_NAMED_STAGE"),
     }
+    # Add stage name without @ prefix for ALTER STAGE statements
+    variables["internal_named_stage_name"] = variables["internal_named_stage"].lstrip("@")
 
     print(f"Environment:")
     print(f"  Warehouse: {variables['demo_warehouse_name']}")
