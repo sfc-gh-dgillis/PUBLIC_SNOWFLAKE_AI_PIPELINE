@@ -19,29 +19,29 @@ tasks:
       if using a custom .env file (filename does not have to be custom.env, but must end with .env).
 
     cmds:
-#      - task: validate-prerequisites:snowcli
-#        silent: true
-#
-#      - task: snow-cli:sort-and-process-sql-folder
-#        vars:
-#          SQL_SORT_PROCESS_DIR: sql/batch-0
-#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-#
-#      - task: snow-cli:sort-and-process-sql-folder
-#        vars:
-#          SQL_SORT_PROCESS_DIR: sql/batch-1
-#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-#
-#      - task: snow-cli:upload-files-to-internal-named-stage
-#        vars:
-#          FILE_UPLOAD_DIR: $FILE_UPLOAD_DIR
-#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-#          INTERNAL_NAMED_STAGE: $INTERNAL_NAMED_STAGE
+      - task: validate-prerequisites:snowcli
+        silent: true
 
-#      - task: snow-cli:sort-and-process-sql-folder
-#        vars:
-#          SQL_SORT_PROCESS_DIR: sql/batch-2
-#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-0
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-1
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+
+      - task: snow-cli:upload-files-to-internal-named-stage
+        vars:
+          FILE_UPLOAD_DIR: $FILE_UPLOAD_DIR
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+          INTERNAL_NAMED_STAGE: $INTERNAL_NAMED_STAGE
+
+      - task: snow-cli:sort-and-process-sql-folder
+        vars:
+          SQL_SORT_PROCESS_DIR: sql/batch-2
+          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
 
       - task: snow-cli:generate-notebook
         vars:
@@ -50,7 +50,6 @@ tasks:
       - task: snow-cli:deploy-notebook
         vars:
           PROJECT_DIR: notebook/output/2_AI_Pipeline
-
 
   demo-down:
     desc: |
