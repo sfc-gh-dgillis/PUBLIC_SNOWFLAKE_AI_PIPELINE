@@ -6,12 +6,12 @@ USE ROLE ACCOUNTADMIN;
 -- we need a network rule and external access integration.
 
 -- create the network rule
-CREATE OR REPLACE NETWORK RULE gen_ai_fsi.asset_management.fed_reserve
+CREATE NETWORK RULE IF NOT EXISTS gen_ai_fsi.asset_management.fed_reserve
   MODE = EGRESS
   TYPE = HOST_PORT
   VALUE_LIST = ('www.federalreserve.gov');
 
 -- add the network rule to external access integration
-CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION fed_reserve_access_integration
+CREATE EXTERNAL ACCESS INTEGRATION IF NOT EXISTS fed_reserve_access_integration
   ALLOWED_NETWORK_RULES = (FED_RESERVE)
   ENABLED = TRUE;

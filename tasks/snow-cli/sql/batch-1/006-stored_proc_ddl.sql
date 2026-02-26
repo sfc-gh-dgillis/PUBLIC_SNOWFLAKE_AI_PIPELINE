@@ -1,18 +1,18 @@
 USE DATABASE gen_ai_fsi;
 USE SCHEMA gen_ai_fsi.asset_management;
-USE ROLE ACCOUNTADMIN;
+USE ROLE accountadmin;
 
 -- create the scraping SPROC
-CREATE OR REPLACE PROCEDURE gen_ai_fsi.asset_management.get_fed_pdfs()
-RETURNS VARCHAR
-LANGUAGE PYTHON
-RUNTIME_VERSION = 3.9
-PACKAGES = ('snowflake-snowpark-python', 'requests', 'bs4', 'snowflake')
-EXTERNAL_ACCESS_INTEGRATIONS = ("FED_RESERVE_ACCESS_INTEGRATION")
-HANDLER='main'
-EXECUTE AS CALLER
-AS $$
-
+CREATE PROCEDURE IF NOT EXISTS gen_ai_fsi.asset_management.get_fed_pdfs()
+    RETURNS VARCHAR
+    LANGUAGE PYTHON
+    RUNTIME_VERSION = 3.9
+    PACKAGES = ('snowflake-snowpark-python','requests','bs4','snowflake')
+    EXTERNAL_ACCESS_INTEGRATIONS = ("FED_RESERVE_ACCESS_INTEGRATION")
+    HANDLER = 'main'
+    EXECUTE AS CALLER
+AS
+$$
 import snowflake.snowpark as snowpark
 import requests
 from bs4 import BeautifulSoup
@@ -21,6 +21,7 @@ from io import BytesIO
 import requests
 from bs4 import BeautifulSoup
 from io import BytesIO
+
 
 def get_all_fomc_pdfs():
     try:
@@ -31,7 +32,7 @@ def get_all_fomc_pdfs():
         for link in soup.find_all('a', href=True):
             href = link['href']
             if 'fomcminutes' in href and href.endswith('.pdf'):
-            # if href.endswith('.pdf'):
+                # if href.endswith('.pdf'):
                 if not href.startswith('http'):
                     href = 'https://www.federalreserve.gov' + href
                 pdf_links.append(href)
@@ -40,10 +41,11 @@ def get_all_fomc_pdfs():
         print(f"Error fetching the FOMC statement page: {e}")
         return ['no new links']
 
+
 def main(session):
     database = 'GEN_AI_FSI'
     schema = 'asset_management'
-    stage = 'FED_PDF'
+    stage = 'fomc_sentiment_analysis_demo'
 
     downloaded_files = []
     already_downloaded_files = []
@@ -64,10 +66,10 @@ def main(session):
         filename = pdf.split('/')[-1]
 
         # Check if the file is an FOMC minutes PDF and not already downloaded
-        if 'fomcminutes' in filename and ('fed_pdf/' + filename not in stage_files):
+        if 'fomcminutes' in filename and ('fomc_sentiment_analysis_demo/' + filename not in stage_files):
             try:
                 response = requests.get(pdf)
-                response.raise_for_status() # Raise an exception for bad status codes
+                response.raise_for_status()  # Raise an exception for bad status codes
                 full_file_name = stage_path + filename
                 file_data = response.content
                 buffer = BytesIO(file_data)

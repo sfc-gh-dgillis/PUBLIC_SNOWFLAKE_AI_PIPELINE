@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.models (
 );
 
 --create our full text table
-CREATE OR REPLACE TABLE gen_ai_fsi.asset_management.pdf_full_text (
+CREATE TABLE IF NOT EXISTS gen_ai_fsi.asset_management.pdf_full_text (
     id                       NUMBER(19, 0),
     fomc_file                FILE,
     fomc_file_date           DATE,
