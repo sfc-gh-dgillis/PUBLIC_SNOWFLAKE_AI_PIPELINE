@@ -4,7 +4,7 @@ entities:
     type: notebook
     query_warehouse: {{ demo_warehouse_name }}
     identifier:
-      name: ai_pipeline_demo
+      name: ai_pipeline_industrialization_demo
       database: {{ demo_database_name }}
       schema: {{ demo_schema_name }}
     stage_path: {{ internal_named_stage }}
