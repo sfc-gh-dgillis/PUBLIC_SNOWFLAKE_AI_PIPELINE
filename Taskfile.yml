@@ -91,11 +91,11 @@ tasks:
           SQL_SORT_PROCESS_DIR: sql/batch-1
           CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
 
-      - task: snow-cli:upload-files-to-internal-named-stage
-        vars:
-          FILE_UPLOAD_DIR: $FILE_UPLOAD_DIR
-          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
-          INTERNAL_NAMED_STAGE: $INTERNAL_NAMED_STAGE
+#      - task: snow-cli:upload-files-to-internal-named-stage
+#        vars:
+#          FILE_UPLOAD_DIR: $FILE_UPLOAD_DIR
+#          CLI_CONNECTION_NAME: $CLI_CONNECTION_NAME
+#          INTERNAL_NAMED_STAGE: $INTERNAL_NAMED_STAGE
 
       - task: snow-cli:sort-and-process-sql-folder
         vars:
