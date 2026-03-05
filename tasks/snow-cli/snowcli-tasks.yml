@@ -1,0 +1,43 @@
+version: '3'
+
+tasks:
+
+  sort-and-process-sql-folder:
+    desc: Sorts and processes all SQL files in the given directory. Sorts and executes SQL files with numeric prefixes (e.g., 001-schema.sql)
+    cmds:
+      - python3 pyutil/snowclisp/snowclisp.py "{{.SQL_SORT_PROCESS_DIR}}" "{{.CLI_CONNECTION_NAME}}" --prefix-file sql/whoami.sql
+
+  upload-files-to-internal-named-stage:
+    desc: Uploads all files from the given directory to a Snowflake Internal stage using the Snowflake CLI and PUT command.
+    cmds:
+      - python3 pyutil/snowcliput/snowcliput.py "{{.FILE_UPLOAD_DIR}}" "{{.CLI_CONNECTION_NAME}}" "{{.INTERNAL_NAMED_STAGE}}"
+
+  drop-database-if-exists:
+    desc: Drops the specified Snowflake database if it exists using the Snowflake CLI.
+    cmds:
+      - snow sql --connection "{{.CLI_CONNECTION_NAME}}" --query "DROP DATABASE IF EXISTS {{.DEMO_DATABASE_NAME}};"
+
+  generate-notebook:
+    desc: Generates a Snowflake notebook from template by substituting environment variables.
+    vars:
+      TEMPLATE_FILE: '{{.TEMPLATE_FILE}}'
+      OUTPUT_FILE: '{{.OUTPUT_FILE}}'
+    cmds:
+      - cmd/generate-notebook.sh "{{.TEMPLATE_FILE}}" "{{.OUTPUT_FILE}}"
+
+  generate-all-notebooks:
+    desc: Generates all Snowflake notebooks from template subdirectories in notebook/template/.
+    cmds:
+      - cmd/generate-notebook.sh --all
+
+  deploy-notebook:
+    desc: Deploys a notebook to Snowflake using the Snow CLI. Requires PROJECT_DIR var.
+    vars:
+      PROJECT_DIR: '{{.PROJECT_DIR}}'
+    cmds:
+      - cmd/deploy-notebook.sh "{{.PROJECT_DIR}}"
+
+  deploy-all-notebooks:
+    desc: Deploys all notebooks from output subdirectories in notebook/output/.
+    cmds:
+      - cmd/deploy-all-notebooks.sh
